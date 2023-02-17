@@ -111,6 +111,11 @@ def terminal(board):
     """
     Returns True if game is over, False otherwise.
     """
+    if winner(board) == X or winner(board) == O or winner(board) == None:
+        return True
+    
+    return False
+
     raise NotImplementedError
 
 

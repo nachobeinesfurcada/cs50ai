@@ -1,4 +1,4 @@
-from tictactoe import initial_state, player, actions, result, winner
+from tictactoe import initial_state, player, actions, result, winner, terminal
 
 X = "X"
 O = "O"
@@ -6,8 +6,8 @@ O = "O"
 EMPTY = None
 
 board = [[X, O, O],
-        [O, O, X],
+        [EMPTY, EMPTY, X],
         [O, O, X]]
 
 
-print(winner(board))
+print(terminal(board))
