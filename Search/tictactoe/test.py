@@ -11,3 +11,6 @@ board = [[X, O, O],
 
 
 print(terminal(board))
+
+import sys
+print(sys.executable)

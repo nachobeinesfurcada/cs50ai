@@ -10,7 +10,6 @@ X = "X"
 O = "O"
 EMPTY = None
 
-moves = 2
 
 def initial_state():
     """
@@ -27,16 +26,19 @@ def player(board):
     """
     Returns player who has the next turn on a board.
     """
-    player_turn = 0
+    moves = 0
 
-    if initial_state:
+    for i in range(3):
+        for j in range(3):
+            if board[i][j] != EMPTY:
+                moves += 1
+
+    if board == initial_state():
         return X
-    elif (moves % 2) != 0:
+    if moves % 2 == 1:
         return O
-    elif (moves % 2) == 0:
+    else:
         return X
-    else: 
-        return 0
     
     raise NotImplementedError
 
@@ -50,8 +52,8 @@ def actions(board):
     # loop over all board positions to check for not empty
     for row_index, row in enumerate(board):
         for column_index, column in enumerate(row):
-            if column is EMPTY:
-                actions.append((row_index, column_index))
+            if column == EMPTY:
+                actions.add((row_index, column_index))
 
     return actions
 
@@ -62,18 +64,17 @@ def result(board, action):
     """
     Returns the board that results from making move (i, j) on the board.
     """
-    # make a copy of board
-    board_copy = copy.deepcopy(board)
-
+    
     # if action is not valid
     if action[0] > 2 or action[0] < 0 or action[1] > 2 or action[1] < 0:
         raise Exception
-    else:    
-        if (moves % 2) != 0:
-            board_copy[action[0]][action[1]] = O
-        elif (moves % 2) == 0:
-            board_copy[action[0]][action[1]] = X
-        return board_copy
+
+    # make a copy of board
+    board_copy = copy.deepcopy(board)
+
+    board_copy[action[0]][action[1]] = player(board)
+
+    return board_copy
 
     raise NotImplementedError
 
@@ -89,7 +90,7 @@ def winner(board):
         elif board[row][0] == board[row][1] == board[row][2] == O:
             return O
 
-    # virtical checking
+    # vertical checking
     for col in range(3):
         if board[0][col] == board[1][col] == board[2][col] == X:
             return X
@@ -113,7 +114,9 @@ def terminal(board):
     """
     if winner(board) == X or winner(board) == O or winner(board) == None:
         return True
-    
+    elif winner(board) is False:
+        False
+
     return False
 
     raise NotImplementedError
@@ -123,6 +126,14 @@ def utility(board):
     """
     Returns 1 if X has won the game, -1 if O has won, 0 otherwise.
     """
+
+    if winner(board) is X:
+        return 1
+    if winner(board) is O:
+        return -1
+    if winner(board) is False:
+        return O
+
     raise NotImplementedError
 
 
@@ -130,4 +141,57 @@ def minimax(board):
     """
     Returns the optimal action for the current player on the board.
     """
+    if terminal(board):
+        return None
+
+    Max = float("-inf")
+    Min = float("inf")
+
+    if player(board) == X:
+        return max_value(board, Max, Min)[1]
+    else:
+        return min_value(board, Max, Min)[1]
+
+
     raise NotImplementedError
+
+
+def max_value(board):
+    
+    move = None
+
+    if terminal(board):
+        return [utility(board), None];
+
+    v = float('-inf')
+
+    for action in actions(board):
+        test = min_value(result(board, action), Max, Min)[0]
+        Max = max(Max, test)
+        if test > v:
+            v = test
+            move = action
+        if Max >= Min:
+            break
+    return [v, move];
+
+
+def min_value(board):
+
+    move = None
+
+    if terminal(board):
+        return [utility(board), None];
+
+    v = float('inf')
+
+    for action in actions(board):
+        test = max_value(result(board, action), Max, Min)[0]
+        Min = min(Min, test)
+        if test < v:
+            v = test
+            move = action
+        if Max >= Min:
+            break
+    return [v, move];
+
