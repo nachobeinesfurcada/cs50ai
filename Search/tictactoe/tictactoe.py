@@ -2,8 +2,6 @@
 Tic Tac Toe Player
 """
 
-import math
-from util import Node, StackFrontier, QueueFrontier
 import copy
 
 X = "X"
@@ -15,68 +13,57 @@ def initial_state():
     """
     Returns starting state of the board.
     """
-    board = [[EMPTY, EMPTY, EMPTY],
+    return [[EMPTY, EMPTY, EMPTY],
             [EMPTY, EMPTY, EMPTY],
             [EMPTY, EMPTY, EMPTY]]
-
-    return board
 
 
 def player(board):
     """
     Returns player who has the next turn on a board.
     """
+    #check for quantity of plays made
     moves = 0
-
     for i in range(3):
         for j in range(3):
             if board[i][j] != EMPTY:
                 moves += 1
 
+    # check for moves and define next player
     if board == initial_state():
         return X
     if moves % 2 == 1:
         return O
     else:
         return X
-    
-    raise NotImplementedError
+
 
 
 def actions(board):
     """
     Returns set of all possible actions (i, j) available on the board.
     """
-    actions = []
-
-    # loop over all board positions to check for not empty
-    for row_index, row in enumerate(board):
-        for column_index, column in enumerate(row):
-            if column == EMPTY:
-                actions.add((row_index, column_index))
-
+    # return number of places where the next move can be
+    actions = set()
+    for l in range(3):
+        for k in range(3):
+            if board[l][k] == EMPTY:
+                actions.add((l,k))
     return actions
-
-    raise NotImplementedError
 
 
 def result(board, action):
     """
     Returns the board that results from making move (i, j) on the board.
     """
-    
-    # if action is not valid
-    if action[0] > 2 or action[0] < 0 or action[1] > 2 or action[1] < 0:
+    if action not in actions(board):
         raise Exception
 
-    # make a copy of board
+    # make a copy and return it with the new action from player
     board_copy = copy.deepcopy(board)
-
     board_copy[action[0]][action[1]] = player(board)
 
     return board_copy
-
-    raise NotImplementedError
 
 
 def winner(board):
@@ -97,12 +84,22 @@ def winner(board):
         elif board[0][col] == board[1][col] == board[2][col] == O:
             return O
 
-    # diagonal checking
-    if board[0][0] == board[1][1] == board[2][2] == X:
-        return X
-    if board[0][2] == board[1][1] == board[2][0] == O:
-        return O
-
+    # first diagonal checking
+    if board[0][0] == board[1][1] == board[2][2]:
+        if board[0][0] == X:
+            return X
+        elif board[0][0] == O:
+            return O
+        else:
+            return None
+    # second diagonal checking
+    if board[2][0] == board[1][1] == board[0][2]:
+        if board[2][0] == X:
+            return X
+        elif board[2][0] == O:
+            return O
+        else:
+            return None
     return None
 
     raise NotImplementedError
@@ -112,86 +109,92 @@ def terminal(board):
     """
     Returns True if game is over, False otherwise.
     """
-    if winner(board) == X or winner(board) == O or winner(board) == None:
+    # pretty straight forward
+    if winner(board) is not None:
         return True
-    elif winner(board) is False:
-        False
 
-    return False
+    for l in range(3):
+        for k in range(3):
+            if  board[l][k] == None:
+                return False
+    return True
 
     raise NotImplementedError
-
 
 def utility(board):
     """
     Returns 1 if X has won the game, -1 if O has won, 0 otherwise.
     """
-
-    if winner(board) is X:
+    if winner(board) == X:
         return 1
-    if winner(board) is O:
+    elif winner(board) == O:
         return -1
-    if winner(board) is False:
-        return O
+    else:
+        return 0
 
     raise NotImplementedError
-
 
 def minimax(board):
     """
     Returns the optimal action for the current player on the board.
     """
+    # The maximizing player picks action a in Actions(s)
+    # that produces the highest value of Min-Value(Result(s, a)).
+
+    # The minimizing player picks action a in Actions(s)
+    # that produces the lowest value of Max-Value(Result(s, a)).
+
     if terminal(board):
         return None
 
-    Max = float("-inf")
-    Min = float("inf")
+    maximum = float(-1000)
+    minimum = float(1000)
 
     if player(board) == X:
-        return max_value(board, Max, Min)[1]
+        return max_value(board, maximum, minimum)[1]
     else:
-        return min_value(board, Max, Min)[1]
+        return min_value(board, maximum, minimum)[1]
 
-
-    raise NotImplementedError
-
-
-def max_value(board):
-    
-    move = None
-
-    if terminal(board):
-        return [utility(board), None];
-
-    v = float('-inf')
-
-    for action in actions(board):
-        test = min_value(result(board, action), Max, Min)[0]
-        Max = max(Max, test)
-        if test > v:
-            v = test
-            move = action
-        if Max >= Min:
-            break
-    return [v, move];
-
-
-def min_value(board):
+# defining a function that recursively calculates the maximum value for X to play
+def max_value(board, maximum, minimum):
 
     move = None
 
     if terminal(board):
-        return [utility(board), None];
+        return [utility(board), None]
 
-    v = float('inf')
+    # defining a very small value
+    v = float(-1000)
 
     for action in actions(board):
-        test = max_value(result(board, action), Max, Min)[0]
-        Min = min(Min, test)
-        if test < v:
-            v = test
+        play = min_value(result(board, action), maximum, minimum)[0]
+        maximum = max(maximum, play)
+        if play > v:
+            v = play
             move = action
-        if Max >= Min:
+        if maximum >= minimum:
             break
-    return [v, move];
 
+    return [v, move]
+
+# defining a function that recursively calculates the minimum value for O to play
+def min_value(board, maximum, minimum):
+    move = None
+
+    if terminal(board):
+        return [utility(board), None]
+
+    # defining a very big value
+    v = float(1000)
+
+    # loop that calls min_value function and compares which one is smaller
+    for action in actions(board):
+        play = max_value(result(board, action), maximum, minimum)[0]
+        minimum = min(minimum, play)
+        if play < v:
+            v = play
+            move = action
+        if maximum >= minimum:
+            break
+
+    return [v, move]
