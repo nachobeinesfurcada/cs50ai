@@ -48,44 +48,45 @@ def crawl(directory):
     return pages
 
 
+
 def transition_model(corpus, page, damping_factor):
-    """
-    Return a probability distribution over which page to visit next,
-    given a current page.
-
-    With probability `damping_factor`, choose a link at random
-    linked to by `page`. With probability `1 - damping_factor`, choose
-    a link at random chosen from all pages in the corpus.
-    """
-   
-    # calculate probability for each page on corpus
-    
     for key in corpus:
-        if key == page:
-            num_linked_pages = len(dict[key])
-            for value in corpus[key]:
-                key_dict = {page}
+        if key == page and len(corpus[key])>0:
+            linked_pages = len(corpus[key])
+
+            # defining a set for the page we want to know
+            key_set = corpus[key]
+            
+            # define a new dict for this page 
+            # and calculate the probability of each linked page
+            new_dict = {}
+            for i in key_set:
+                count =+ 1
                 
+                #assign (1-damping) to current page (as it cannot be linked to itself)
+                new_dict[page] = round((1 - damping_factor)/(linked_pages + 1),10)
+                
+                probability = (count/linked_pages) - (1-damping_factor)/(linked_pages) + round((1 - damping_factor)/(linked_pages + 1),10)
 
+                new_dict[i] = round(probability,10)
 
+            return new_dict
+        
+        elif key == page:
+            
+            #number of pages in corpus
+            pages_in_corpus = len(corpus)
 
-    # gives a random floating point number from 0.0 to 1.0 
-    random_number = random.random()
-    
-    # probability distribuition dictionary definition
-    probability_distribution = {}
+            # define a new dict for this page 
+            new_dict = {}
 
-    # with probability damping_factor (0.85)
-    
-    if random_number < damping_factor:
+            # iterate over all pages names in corpus and add them to the new dict
+            # with it´s probability (equal for each page, and all adding to 1)
 
-        return probability_distribution
-
-    # with probability 1 - damping_factor (0.15)
-
-    return probaility_distribution
-
-
+            for i in corpus:
+                new_dict[i] = round(1/pages_in_corpus, 10)
+            return new_dict
+                
 
 
 def sample_pagerank(corpus, damping_factor, n):
@@ -97,7 +98,19 @@ def sample_pagerank(corpus, damping_factor, n):
     their estimated PageRank value (a value between 0 and 1). All
     PageRank values should sum to 1.
     """
-    raise NotImplementedError
+
+    # number of pages in corpus
+    pages_in_corpus = len(corpus)
+
+    for i in SAMPLES:
+        if i == 1:
+            first_page = random.randrange(0, pages_in_corpus, 1)
+
+
+
+    return new_dict
+
+
 
 
 def iterate_pagerank(corpus, damping_factor):

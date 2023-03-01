@@ -7,10 +7,31 @@ corpus = {"1.html": {"2.html", "3.html"}, "2.html": {"3.html"}, "3.html": {"2.ht
 for key in corpus:
      if key == page:
           linked_pages = len(corpus[key])
-          key_dict = {page}
-          key_dict["page"]="0.2"
-          for value in corpus[key]:
+          print(linked_pages)
+
+          key_dict = corpus[key]
+          print(key_dict)
+          key_dict[key] = 1
+
+
+
+
+"""
+for key in corpus:
+     if key == page:
+          linked_pages = len(corpus[key])
+          key_dict = corpus[key]
+          print(key_dict)
+          
+          for value in (key_dict):
+            curr_value = value
+            if curr_value == value:
+                  count =+1
+                  key_dict["1.html"] = count
+            print(key_dict)
+"""
               
-              print(key_dict)
-              
-     
+
+
+     # key_dict = {}        
+     # key_dict[key] = value
