@@ -36,94 +36,91 @@ def transition_model(corpus, page, damping_factor):
 
 
 
+def sample_pagerank(corpus, damping_factor, n):
+
+    # number of pages in corpus
+    pages_in_corpus = len(corpus)
+
+    # create new dict to change for every sample
+    dict_of_probab = {}
+
+    # create new dict to store page counts. key=page:value=count
+    page_rank = {}
+
+    for i in range(SAMPLES):
+        if i == 0:
+            # pick a pseudorandom number from the corpus´ keys
+            first_random_number = random.randrange(0, pages_in_corpus, 1)
+            # look for the page on that key
+            first_random_page = list(corpus)[first_random_number]
+
+            # + 1 because it starts in 0
+            pages_visited = i + 1
+
+            # initialize this page's count to 0
+            count = 0
+
+            # add count to that page's page_count and calculate probabilities directly
+            page_rank[first_random_page] = (count + 1) #/ pages_visited
 
 
-# number of pages in corpus
-pages_in_corpus = len(corpus)
+            # get probabilities for the first page 
+            dict_of_probab = transition_model(corpus, first_random_page, damping_factor)
 
-# create new dict to change for every sample
-dict_of_probab = {}
+            
+        elif i > 0:
+            # + 1 because it starts in 0
+            pages_visited = i + 1
+            
+            # define lists to store previous dict_of_probab info. to be able to 
+            # pass it through random.choice function
+            prob_population = list(dict_of_probab.keys())
+            prob_weights = list(dict_of_probab.values())
 
-# create new dict to store page counts. key=page:value=count
-page_rank = {}
+            # make a random choice from last dict_of_probab
+            random_choice = random.choices(prob_population,prob_weights)
+            random_choice_string = random_choice[0]
 
-for i in range(SAMPLES):
-    if i == 0:
-        # pick a pseudorandom number from the corpus´ keys
-        first_random_number = random.randrange(0, pages_in_corpus, 1)
-        # look for the page on that key
-        first_random_page = list(corpus)[first_random_number]
-
-        # + 1 because it starts in 0
-        pages_visited = i + 1
-
-        # initialize this page's count to 0
-        count = 0
-
-        # add count to that page's page_count and calculate probabilities directly
-        page_rank[first_random_page] = (count + 1) #/ pages_visited
-
-
-        # get probabilities for the first page 
-        dict_of_probab = transition_model(corpus, first_random_page, damping_factor)
+            # increment page count and calculate probability
+            if random_choice_string not in page_rank :
+                page_rank[random_choice_string] = 1
+            else:
+                past_value = page_rank[random_choice_string]
+                page_rank[random_choice_string] = past_value + 1
 
         
-    elif i > 0:
-        # + 1 because it starts in 0
-        pages_visited = i + 1
-        
-        # define lists to store previous dict_of_probab info. to be able to 
-        # pass it through random.choice function
-        prob_population = list(dict_of_probab.keys())
-        prob_weights = list(dict_of_probab.values())
+            # get probability dict for next SAMPLE
+            dict_of_probab = transition_model(corpus, random_choice[0], damping_factor)
 
-        # make a random choice from last dict_of_probab
-        random_choice = random.choices(prob_population,prob_weights)
-        random_choice_string = random_choice[0]
 
-        # increment page count and calculate probability
-        if random_choice_string not in page_rank :
-            page_rank[random_choice_string] = 1
-        else:
-            past_value = page_rank[random_choice_string]
-            page_rank[random_choice_string] = past_value + 1
+    for i in page_rank:
+        past_value = page_rank[i]
+        page_rank[i] = past_value/SAMPLES
+
+
+    return page_rank
+
+
+def iterate_pagerank(corpus, damping_factor):
+    """
+    Return PageRank values for each page by iteratively updating
+    PageRank values until convergence.
+
+    Return a dictionary where keys are page names, and values are
+    their estimated PageRank value (a value between 0 and 1). All
+    PageRank values should sum to 1.
+    """
+
+
+
+
 
     
-        # get probability dict for next SAMPLE
-        dict_of_probab = transition_model(corpus, random_choice[0], damping_factor)
-
-print(page_rank)
-
-
-for i in page_rank:
-    past_value = page_rank[i]
-    page_rank[i] = past_value/SAMPLES
-
-print(page_rank)
 
 
 
 """
-        # initialize this page's count to 1
-        page_rank.update(curr_page_dict)
-        print(page_rank)
-
-        # if it is the first time visiting this page, put 1. else, increment by 1
-        if page_rank[random_choice[0]] == 0:
-            page_rank[random_choice[0]] = 1 #/ pages_visited
-        else:
-            page_rank[random_choice[0]] =+ 1
-
-
-
-        # get probabilities for this page
-        dict_of_probab = transition_model(corpus, random_choice[0], damping_factor)
-
-
-
-
-
-
+# OLD TRANSITION MODEL
 def transition_model(corpus, page, damping_factor):
     for key in corpus:
         if key == page and len(corpus[key])>0:
@@ -168,25 +165,6 @@ def transition_model(corpus, page, damping_factor):
             
 
 transition_model(corpus, page, damping_factor)
-
-            
-        
-
-
-
-
-
-
-
-
-# def sample_pagerank(corpus, damping_factor, n):
-
-
-        
-
-
-
-
 
         
 """

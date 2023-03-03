@@ -15,10 +15,10 @@ def main():
     print(f"PageRank Results from Sampling (n = {SAMPLES})")
     for page in sorted(ranks):
         print(f"  {page}: {ranks[page]:.4f}")
-    ranks = iterate_pagerank(corpus, DAMPING)
-    print(f"PageRank Results from Iteration")
-    for page in sorted(ranks):
-        print(f"  {page}: {ranks[page]:.4f}")
+    #ranks = iterate_pagerank(corpus, DAMPING)
+    #print(f"PageRank Results from Iteration")
+    #for page in sorted(ranks):
+    #    print(f"  {page}: {ranks[page]:.4f}")
 
 
 def crawl(directory):
@@ -160,7 +160,10 @@ def iterate_pagerank(corpus, damping_factor):
     their estimated PageRank value (a value between 0 and 1). All
     PageRank values should sum to 1.
     """
-    raise NotImplementedError
+
+    
+
+
 
 
 if __name__ == "__main__":
