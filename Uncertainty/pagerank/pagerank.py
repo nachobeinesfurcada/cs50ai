@@ -15,10 +15,10 @@ def main():
     print(f"PageRank Results from Sampling (n = {SAMPLES})")
     for page in sorted(ranks):
         print(f"  {page}: {ranks[page]:.4f}")
-    #ranks = iterate_pagerank(corpus, DAMPING)
-    #print(f"PageRank Results from Iteration")
-    #for page in sorted(ranks):
-    #    print(f"  {page}: {ranks[page]:.4f}")
+    ranks = iterate_pagerank(corpus, DAMPING)
+    print(f"PageRank Results from Iteration")
+    for page in sorted(ranks):
+        print(f"  {page}: {ranks[page]:.4f}")
 
 
 def crawl(directory):
@@ -155,15 +155,57 @@ def iterate_pagerank(corpus, damping_factor):
     """
     Return PageRank values for each page by iteratively updating
     PageRank values until convergence.
-
     Return a dictionary where keys are page names, and values are
     their estimated PageRank value (a value between 0 and 1). All
     PageRank values should sum to 1.
     """
 
+    # set constant variables
+    pages_in_corpus = len(corpus)
+    init_rank = 1 / pages_in_corpus
+    random_choice = (1 - damping_factor) / len(corpus)
+    iterations = 0
+
+    # give an initial value to each page
+    page_ranks = {page_name: init_rank for page_name in corpus}
+    new_ranks = {page_name: None for page_name in corpus}
+    max_rank_chg = init_rank
+
+    # repeat process until no PageRank value changes by more than 0.001
+    while max_rank_chg > 0.001:
+
+        iterations += 1
+        max_rank_chg = 0
+
+        for page_name in corpus:
+            choice_probab = 0
+            for other_page in corpus:
+                # If other page has no links it picks randomly any corpus page:
+                if len(corpus[other_page]) == 0:
+                    choice_probab += page_ranks[other_page] * init_rank
+                # Eif other_page has a link to page_name, randomly pick from all links on other_page:
+                elif page_name in corpus[other_page]:
+                    choice_probab += page_ranks[other_page] / len(corpus[other_page])
+            # new page rank
+            new_rank = random_choice + (damping_factor * choice_probab)
+            new_ranks[page_name] = new_rank
+
+        # noramlizing page ranks
+        normalizing_factor = sum(new_ranks.values())
+        new_ranks = {page: (rank / normalizing_factor) for page, rank in new_ranks.items()}
+
+        # find biggest change in page rank:
+        for page_name in corpus:
+            rank_change = abs(page_ranks[page_name] - new_ranks[page_name])
+            if rank_change > max_rank_chg:
+                max_rank_chg = rank_change
+
+        # update page ranks:
+        page_ranks = new_ranks.copy()
+
+    return page_ranks
+
     
-
-
 
 
 if __name__ == "__main__":
